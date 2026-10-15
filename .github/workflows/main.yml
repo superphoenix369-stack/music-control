@@ -1,0 +1,32 @@
+# Builds the mod on GitHub's servers every time you upload changes (or when you press "Run workflow").
+# The finished .jar appears under the run's "Artifacts" section as "music-control-jar".
+name: build
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v6
+      - name: validate gradle wrapper
+        uses: gradle/actions/wrapper-validation@v6
+      - name: setup jdk
+        uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'microsoft'
+      - name: make gradle wrapper executable
+        run: chmod +x ./gradlew
+      - name: build
+        run: ./gradlew build
+      - name: upload the mod jar
+        uses: actions/upload-artifact@v7
+        with:
+          name: music-control-jar
+          path: |
+            build/libs/*.jar
+            !build/libs/*-sources.jar
